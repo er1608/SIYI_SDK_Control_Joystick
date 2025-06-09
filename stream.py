@@ -1,33 +1,13 @@
-#!/bin/env/python3
-"""
-RTSP client for getting video stream from SIYI cameras, e.g. ZR10, A8 Mini
-ZR10 webpage: http://en.siyi.biz/en/Gimbal%20Camera/ZR10/overview/
-A8 mini page: https://shop.siyi.biz/products/siyi-a8-mini?VariantsId=10611
-Author : Mohamed Abdelkader
-Email: mohamedashraf123@gmail.com
-Copyright 2022
-
-Required:
-- OpenCV
-    (sudo apt-get install python3-opencv -y)
-- imutils
-    pip install imutils
-- Gstreamer (https://gstreamer.freedesktop.org/documentation/installing/index.html?gi-language=c)
-    (Ubuntu: sudo apt-get install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-doc gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-qt5 gstreamer1.0-pulseaudio -y)
-- Deepstream (only for Nvidia Jetson boards)
-    (https://docs.nvidia.com/metropolis/deepstream/dev-guide/text/DS_Quickstart.html#jetson-setup)
-- For RTMP streaming
-    sudo apt install ffmpeg -y
-    pip install ffmpeg-python
-"""
 import cv2
 import logging
 from time import time, sleep
 import threading
 import platform
+from imutils.video import VideoStream
+import subprocess
 
 class SIYIRTSP:
-    def __init__(self, rtsp_url="rtsp://192.168.144.25:8554/main.264", cam_name="ZR10", debug=False, use_udp=True) -> None:
+    def __init__(self, rtsp_url="rtsp://192.168.144.25:8554/main.264", cam_name="A8 mini", debug=False, use_udp=True) -> None:
         '''
         Receives video stream from SIYI cameras
 
@@ -44,8 +24,8 @@ class SIYIRTSP:
         self._use_udp = use_udp  # Track whether we are trying UDP or TCP
 
         # Desired image width/height
-        self._width = 640  # Lower resolution to reduce data size
-        self._height = 480
+        self._width = 320  # Lower resolution to reduce data size
+        self._height = 240
 
         # Stored image frame
         self._frame = None
@@ -98,7 +78,7 @@ class SIYIRTSP:
             # Set lower resolution and frame rate to reduce latency
             self._stream.set(cv2.CAP_PROP_FRAME_WIDTH, self._width)
             self._stream.set(cv2.CAP_PROP_FRAME_HEIGHT, self._height)
-            self._stream.set(cv2.CAP_PROP_FPS, 15)  # Lower FPS to reduce processing load
+            self._stream.set(cv2.CAP_PROP_FPS, 10)  # Lower FPS to reduce processing load
 
             if not self._stream.isOpened():
                 raise Exception(f"Failed to open RTSP stream {self._rtsp_url}")
@@ -327,12 +307,9 @@ class RTMPSender:
         self._logger.warning("RTMP streaming loop is done")
         return
 
-        
-
-
 def test():
-    # rtsp = SIYIRTSP(debug=False)
-    # rtsp.setShowWindow(True)
+    rtsp = SIYIRTSP(debug=False, use_udp=False)
+    rtsp.setShowWindow(True)
     # Webcam
     try:
         wc = VideoStream(src=0).start()
@@ -340,22 +317,25 @@ def test():
         print("Error in opening webcam")
         exit(1)
 
-    rtmp = RTMPSender(rtmp_url="rtmp://127.0.0.1:1935/live/webcam")
-    rtmp.start()
+    # rtmp = RTMPSender(rtmp_url="rtmp://127.0.0.1:1935/live/webcam")
+    # rtmp.start()
+
     try:
         while(True):
             # frame=stream.getFrame()
-            frame=wc.read()
-            rtmp.setFrame(frame)
+            frame = rtsp.getFrame()
+            if frame is not None:
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
+            # frame = wc.read()
+            # rtmp.setFrame(frame)
     except KeyboardInterrupt:
         # rtsp.close()
-        rtmp.stop()
+        # rtmp.stop()
         wc.stop()
         cv2.destroyAllWindows()
         # quit
         exit(0)
-
-    
 
 if __name__=="__main__":
     test()

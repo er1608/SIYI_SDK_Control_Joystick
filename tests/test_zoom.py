@@ -36,6 +36,8 @@ def test():
     sleep(1)
     print("Zoom level: ", cam.getZoomLevel())
 
+    print(f"value={val}")
+
     cam.disconnect()
 
 if __name__ == "__main__":

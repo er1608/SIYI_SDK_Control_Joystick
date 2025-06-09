@@ -24,16 +24,16 @@ def test():
         print("No connection ")
         exit(1)
 
-    desired_zoom_level = 3.0
+    desired_zoom_level = 10.0
     print(f"Setting zoom level to {desired_zoom_level}")
     cam.requestAbsoluteZoom(desired_zoom_level)
     sleep(3)
     print(f"Zoom level: {cam.getCurrentZoomLevel()}")
 
-    print("Setting zoom level to 1")
-    cam.requestAbsoluteZoom(1.0)
-    sleep(3)
-    print(f"Zoom level: {cam.getCurrentZoomLevel()}")
+    # print("Setting zoom level to 1")
+    # cam.requestAbsoluteZoom(1.0)
+    # sleep(3)
+    # print(f"Zoom level: {cam.getCurrentZoomLevel()}")
     
 
     cam.disconnect()
