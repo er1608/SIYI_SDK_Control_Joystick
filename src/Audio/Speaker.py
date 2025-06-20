@@ -25,11 +25,14 @@ while True:
 
 print(f"📥 Định dạng nhận được: {channels} kênh, {sampwidth*8}-bit, {rate}Hz")
 
+output_device_index = 11
+
 p = pyaudio.PyAudio()
 stream = p.open(format=p.get_format_from_width(sampwidth),
                 channels=channels,
-                rate=rate,
-                output=True)
+                rate=48000,
+                output=True,
+                output_device_index=output_device_index)
 
 print("▶️ Bắt đầu nhận và phát âm thanh...")
 
