@@ -34,17 +34,6 @@ Python implementation of the SDK of SIYI camera-gimbal systems.
   
     ```
 
-* Use gui
-
-    ```bash
-    python3 gui/tkgui.py
-    ```
-
-
-    <video src="gui/demo.mp4" controls title="Demo"></video>
-    
-    <img src="gui/gui_tkinter.png" width=200> </img>
-
 # Video Streaming
 ## Requirements
 * OpenCV `sudo apt-get install python3-opencv -y`
